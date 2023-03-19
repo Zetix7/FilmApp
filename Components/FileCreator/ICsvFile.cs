@@ -4,8 +4,8 @@ namespace FilmApp.Components.FileCreator;
 
 public interface ICsvFile
 {
-    void CreateArtistCsvFile();
-    void CreateMovieCsvFile();
-    List<Artist> ReadArtistCsvFile(string pathName);
-    List<Movie> ReadMovieCsvFile(string pathName);
+    void CreateArtistsCsvFile();
+    void CreateMoviesCsvFile();
+    List<Artist> ReadArtistsCsvFile(string pathName);
+    List<Movie> ReadMoviesCsvFile(string pathName);
 }

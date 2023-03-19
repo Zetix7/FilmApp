@@ -18,7 +18,7 @@ public class ListRepository<T> : IRepository<T> where T : class, IEntity, new()
 
     public void Add(T entity)
     {
-        entity.Id = _repository.Count() + 1;
+        entity.Id = _repository.Count + 1;
         _repository.Add(entity);
     }
 

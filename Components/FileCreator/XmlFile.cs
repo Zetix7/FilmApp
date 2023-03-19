@@ -1,4 +1,5 @@
 ﻿using FilmApp.Components.FileCreator.Models;
+using System.Globalization;
 using System.Xml.Linq;
 
 namespace FilmApp.Components.FileCreator;
@@ -12,37 +13,37 @@ public class XmlFile : IXmlFile
         _csvFile = csvFile;
     }
 
-    public void CreateArtistXmlFile()
+    public void CreateArtistsXmlFile()
     {
-        var csvArtists = _csvFile.ReadArtistCsvFile(@"Resources\Files\artists.csv");
+        var csvArtists = _csvFile.ReadArtistsCsvFile(@"Resources\Files\artists.csv");
 
         var xmlArtists = new XElement("Artists", csvArtists
             .Select(x =>
                 new XElement("Artist",
-                    new XAttribute("FirstName", x.FirstName),
-                    new XAttribute("LastName", x.LastName))));
+                    new XAttribute("FirstName", x.FirstName!),
+                    new XAttribute("LastName", x.LastName!))));
 
         var xmlFile = new XDocument(xmlArtists);
         xmlArtists.Save(@"Resources\Files\artists.xml");
     }
 
-    public void CreateMovieXmlFile()
+    public void CreateMoviesXmlFile()
     {
-        var csvMovies = _csvFile.ReadMovieCsvFile(@"Resources\Files\movies.csv");
+        var csvMovies = _csvFile.ReadMoviesCsvFile(@"Resources\Files\movies.csv");
 
         var xmlMovies = new XElement("Movies", csvMovies
             .Select(x =>
                 new XElement("Movie",
-                    new XAttribute("Title", x.Title),
+                    new XAttribute("Title", x.Title!),
                     new XAttribute("Year", x.Year),
-                    new XAttribute("Universe", x.Universe),
+                    new XAttribute("Universe", x.Universe!),
                     new XAttribute("BoxOffice", x.BoxOffice))));
 
         var xmlFile = new XDocument(xmlMovies);
         xmlFile.Save(@"Resources\Files\movies.xml");
     }
 
-    public List<Artist> ReadArtistXmlFile(string pathName)
+    public List<Artist> ReadArtistsXmlFile(string pathName)
     {
         var records = XDocument.Load(pathName);
 
@@ -55,16 +56,16 @@ public class XmlFile : IXmlFile
         return artists;
     }
 
-    public List<Movie> ReadMovieXmlFile(string pathName)
+    public List<Movie> ReadMoviesXmlFile(string pathName)
     {
         var records = XDocument.Load(pathName);
 
         return records.Element("Movies")!.Elements("Movie").Select(x => new Movie
         {
             Title = x.Attribute("Title")!.Value,
-            Year = int.Parse(x.Attribute("Year")!.Value),
+            Year = int.Parse(x.Attribute("Year")!.Value, CultureInfo.InvariantCulture),
             Universe = x.Attribute("Universe")!.Value,
-            BoxOffice = decimal.Parse(x.Attribute("BoxOffice")!.Value)
+            BoxOffice = decimal.Parse(x.Attribute("BoxOffice")!.Value, CultureInfo.InvariantCulture)
         }).ToList();
     }
 }

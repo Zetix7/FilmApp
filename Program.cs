@@ -27,5 +27,3 @@ services.AddSingleton<IMenu<Movie>, MovieMenu>();
 var serviceProvider =  services.BuildServiceProvider();
 var app = serviceProvider.GetService<IApp>()!;
 app.Run();
-
-//Data Source=.\SQLEXPRESS;Initial Catalog=MotoAppStorage;Integrated Security=True

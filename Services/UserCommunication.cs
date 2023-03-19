@@ -1,4 +1,5 @@
 ﻿using FilmApp.Components.Menu;
+using FilmApp.Components.Menu.Extensions;
 using FilmApp.Data.Entities;
 
 namespace FilmApp.Services;
@@ -30,12 +31,12 @@ public class UserCommunication : IUserCommunication
 
             if (choise == "1")
             {
-                AddSeparator();
+                MenuHelper.AddSeparator();
                 _artistMenu.LoadMenu();
             }
             else if (choise == "2")
             {
-                AddSeparator();
+                MenuHelper.AddSeparator();
                 _movieMenu.LoadMenu();
             }
             else if (choise == "Q")
@@ -44,15 +45,10 @@ public class UserCommunication : IUserCommunication
             }
             else
             {
-                AddSeparator();
+                MenuHelper.AddSeparator();
                 Console.WriteLine("ERROR : Choose one option: 1 or 2 or Q!\n\tIf not, You'll stuck here forever!");
-                AddSeparator();
+                MenuHelper.AddSeparator();
             }
         }
-    }
-
-    private void AddSeparator()
-    {
-        Console.WriteLine("_________________________________________________________________________________________________________________");
     }
 }

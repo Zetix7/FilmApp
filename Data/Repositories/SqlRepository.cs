@@ -14,28 +14,13 @@ public class SqlRepository<T> : IRepository<T> where T : class, IEntity
         _dbSet = _dbContext.Set<T>();
     }
 
-    public IEnumerable<T> GetAll()
-    {
-        return _dbSet.ToList();
-    }
+    public IEnumerable<T> GetAll() => _dbSet.ToList();
 
-    public T? GetById(int id)
-    {
-        return _dbSet.SingleOrDefault(x => x.Id == id);
-    }
+    public T? GetById(int id) => _dbSet.SingleOrDefault(x => x.Id == id);
 
-    public void Add(T entity)
-    {
-        _dbSet.Add(entity);
-    }
+    public void Add(T entity) => _dbSet.Add(entity);
 
-    public void Remove(T entity)
-    {
-        _dbSet.Remove(entity);
-    }
+    public void Remove(T entity) => _dbSet.Remove(entity);
 
-    public void Save()
-    {
-        _dbContext.SaveChanges();
-    }
+    public void Save() => _dbContext.SaveChanges();
 }

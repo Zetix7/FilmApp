@@ -1,15 +1,33 @@
 ﻿using FilmApp.Data.Entities;
 using FilmApp.Data.Repositories;
+using FilmApp.Components.Menu.Extensions;
 
 namespace FilmApp.Components.Menu;
 
-public abstract class Menu<T> where T : class, IEntity
+public abstract class Menu<T> : IMenu<T> where T : class, IEntity
 {
     private readonly IRepository<T> _repository;
 
     public Menu(IRepository<T> repository)
     {
         _repository = repository;
+    }
+
+    public void LoadMenu()
+    {
+        Console.WriteLine($"{PascalFormat(typeof(T).Name)} - What do you want to do?");
+        Console.WriteLine("\tChoose one option:");
+        Console.WriteLine($"\t\t1 - Read all {typeof(T).Name.ToLower()}s");
+        Console.WriteLine($"\t\t2 - Read {typeof(T).Name.ToLower()} by ID");
+        Console.WriteLine($"\t\t3 - Add new {typeof(T).Name.ToLower()}");
+        Console.WriteLine($"\t\t4 - Remove {typeof(T).Name.ToLower()}");
+        Console.WriteLine("\t\t5 - Save changes");
+        Console.WriteLine($"\t\t6 - Read from {typeof(T).Name.ToLower()}s.csv file");
+        Console.WriteLine($"\t\t7 - Save to {typeof(T).Name.ToLower()}s.csv file");
+        Console.WriteLine($"\t\t8 - Read from {typeof(T).Name.ToLower()}s.xml file");
+        Console.WriteLine($"\t\t9 - Save to {typeof(T).Name.ToLower()}s.xml file");
+        Console.WriteLine("\t\tQ - Exit");
+        Console.Write("\tYour choise: ");
     }
 
     protected abstract void RemoveItem();
@@ -19,15 +37,15 @@ public abstract class Menu<T> where T : class, IEntity
     protected void SaveChangesInDatabase()
     {
         _repository.Save();
-        AddSeparator();
+        MenuHelper.AddSeparator();
         Console.WriteLine("\tChanges saved!");
-        AddSeparator();
+        MenuHelper.AddSeparator();
     }
     protected void ReadItemById()
     {
         try
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.Write("\tChoose one ID: ");
             var choise = Console.ReadLine()!.Trim();
             if (!int.TryParse(choise, out int id))
@@ -35,34 +53,30 @@ public abstract class Menu<T> where T : class, IEntity
                 throw new FormatException($"ERROR : Invalid format! Insert MUST be a digit!");
             }
 
-            var item = _repository.GetById(id);
-            if (item == null)
-            {
-                throw new ArgumentException($"ERROR : Invalid value! ID not exists! Try again!");
-            }
-            AddSeparator();
+            var item = _repository.GetById(id) ?? throw new ArgumentException($"ERROR : Invalid value! ID not exists! Try again!");
+            MenuHelper.AddSeparator();
             Console.WriteLine($"{typeof(T).Name} : {item}");
         }
         catch (FormatException fe)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine(fe.Message);
         }
         catch (ArgumentException ae)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine(ae.Message);
         }
         finally
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
         }
     }
 
     protected void ReadAllItems()
     {
-        AddSeparator();
-        if(_repository.GetAll().Count() == 0)
+        MenuHelper.AddSeparator();
+        if(!_repository.GetAll().Any())
         {
             Console.WriteLine("INFO : Database is empty!");
         }
@@ -72,12 +86,7 @@ public abstract class Menu<T> where T : class, IEntity
             Console.WriteLine(item);
         }
         
-        AddSeparator();
-    }
-
-    protected void AddSeparator()
-    {
-        Console.WriteLine("_________________________________________________________________________________________________________________");
+        MenuHelper.AddSeparator();
     }
 
     protected string PascalFormat(string insert)
@@ -97,7 +106,8 @@ public abstract class Menu<T> where T : class, IEntity
             {
                 continue;
             }
-            result += word.Substring(0, 1).ToUpper() + word.Substring(1).ToLower() + " ";
+            //result += word.Substring(0, 1).ToUpper() + word.Substring(1).ToLower() + " ";
+            result += word[..1].ToUpper() + word[1..].ToLower() + " ";
         }
 
         return result.Trim();

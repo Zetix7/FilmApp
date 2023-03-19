@@ -1,4 +1,5 @@
 ﻿using FilmApp.Components.FileCreator;
+using FilmApp.Components.Menu.Extensions;
 using FilmApp.Data.Entities;
 using FilmApp.Data.Repositories;
 using System.Text;
@@ -19,23 +20,11 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         _csvFile = csvFile;
         _xmlFile = xmlFile;
     }
-    public void LoadMenu()
+    public new void LoadMenu()
     {
         while (true)
         {
-            Console.WriteLine("Movies - What do you want to do?");
-            Console.WriteLine("\tChoose one option:");
-            Console.WriteLine("\t\t1 - Read all movies");
-            Console.WriteLine("\t\t2 - Read movie by ID");
-            Console.WriteLine("\t\t3 - Add new movie");
-            Console.WriteLine("\t\t4 - Remove movie");
-            Console.WriteLine("\t\t5 - Save changes");
-            Console.WriteLine("\t\t6 - Read from movies.csv file");
-            Console.WriteLine("\t\t7 - Save to movies.csv file");
-            Console.WriteLine("\t\t8 - Read from movies.xml file");
-            Console.WriteLine("\t\t9 - Save to movies.xml file");
-            Console.WriteLine("\t\tQ - Exit");
-            Console.Write("\tYour choise: ");
+            base.LoadMenu();
             var choise = Console.ReadLine()!.ToUpper();
 
             if (choise == "1")
@@ -76,15 +65,15 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
             }
             else if (choise == "Q")
             {
-                AddSeparator();
+                MenuHelper.AddSeparator();
                 break;
             }
             else
             {
-                AddSeparator();
+                MenuHelper.AddSeparator();
                 Console.WriteLine("ERROR : Wrong option! \n\t\tChoose one option: 1 or 2 or 3 or 4 or 5 or 6 or 7 or 8 or 9 or Q! \n" +
                     "\tIf not, You will stuck here forever!");
-                AddSeparator();
+                MenuHelper.AddSeparator();
             }
         }
     }
@@ -93,14 +82,14 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
     {
         var movies = _repository.GetAll().ToList();
 
-        AddSeparator();
+        MenuHelper.AddSeparator();
         if (movies.Count > 0)
         {
             var data = new XElement("Movies", movies
                 .Select(x => new XElement("Movie",
-                    new XAttribute("Title", x.Title),
+                    new XAttribute("Title", x.Title!),
                     new XAttribute("Year", x.Year),
-                    new XAttribute("Universe", x.Universe),
+                    new XAttribute("Universe", x.Universe!),
                     new XAttribute("BoxOffice", x.BoxOffice))));
 
             var xmlFile = new XDocument(data);
@@ -112,20 +101,20 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         {
             Console.WriteLine("INFO : Database is empty!");
         }
-        AddSeparator();
+        MenuHelper.AddSeparator();
     }
 
     private void ReadMovieFromXmlFile(string pathName)
     {
         try
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             if (!File.Exists(pathName))
             {
                 throw new FileNotFoundException($"ERROR : Directory or file '{pathName}' not exists!");
             }
 
-            var movies = _xmlFile.ReadMovieXmlFile(pathName);
+            var movies = _xmlFile.ReadMoviesXmlFile(pathName);
             ReadMovies(movies);
         }
         catch (FileNotFoundException fe)
@@ -142,7 +131,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         }
         finally
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
         }
     }
 
@@ -150,7 +139,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
     {
         var movies = _repository.GetAll().ToList();
 
-        AddSeparator();
+        MenuHelper.AddSeparator();
         if (movies.Count > 0)
         {
             var data = new StringBuilder();
@@ -166,20 +155,20 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         {
             Console.WriteLine("INFO : Database is empty!");
         }
-        AddSeparator();
+        MenuHelper.AddSeparator();
     }
 
     private void ReadMovieFromCsvFile(string pathName)
     {
         try
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             if (!File.Exists(pathName))
             {
                 throw new FileNotFoundException($"ERROR : Directory or file '{pathName}' not exists!");
             }
 
-            var movies = _csvFile.ReadMovieCsvFile(pathName);
+            var movies = _csvFile.ReadMoviesCsvFile(pathName);
             ReadMovies(movies);
         }
         catch (FileNotFoundException fe)
@@ -192,7 +181,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         }
         finally
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
         }
     }
 
@@ -207,9 +196,9 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
             }
             _repository.Add(new Movie
             {
-                Title = movie.Title,
+                Title = movie.Title!,
                 Year = movie.Year,
-                Universe = movie.Universe,
+                Universe = movie.Universe!,
                 BoxOffice = movie.BoxOffice
             });
             count++;
@@ -218,7 +207,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
 
         if (count > 0)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine("INFO : Data succesfully read and prepered to save in database! \n" +
                 "\tDo not forget save changes, If you want save it to database!");
         }
@@ -232,87 +221,97 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
     {
         try
         {
-            AddSeparator();
-            Console.WriteLine("Add new artist:");
-            Console.Write("\tTitle: ");
-            var title = Console.ReadLine()!.Trim();
-            title = PascalFormat(title);
-
-            Console.Write("\tYear: ");
-            var year = Console.ReadLine()!.Trim();
-            if (!int.TryParse(year, out int releaseYear))
-            {
-                throw new FormatException("ERROR : Invalid format!\n\t\tValue must be integer!\n\tOr you stuck here for long time!");
-            }
-
-            Console.Write("\tUniverse: ");
-            var universe = Console.ReadLine()!.Trim();
-            universe = PascalFormat(universe);
-
-            Console.Write("\tBoxOffice: ");
-            var boxOffice = Console.ReadLine()!.Trim();
-            if (!decimal.TryParse(boxOffice, out decimal profits))
-            {
-                throw new FormatException("ERROR : Invalid format!\n\t\tValue must be digit!\n\tOr you stuck here for long time!");
-            }
-
-            if (_repository.GetAll().Where(x => x.Title == title).Any())
-            {
-                throw new ArgumentException("ERROR : Movie exists in database! You can not add same movie!");
-            }
-
-            _repository.Add(new Movie { Title = title, Year = releaseYear, Universe = universe, BoxOffice = profits });
-
-            AddSeparator();
-            Console.WriteLine($"INFO :\tMovie {title} added succesfully! Do not forget save changes!");
+            AddNewMovieToRepository();
         }
         catch (ArgumentException ae)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine(ae.Message);
         }
         catch (FormatException fe)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine(fe.Message);
         }
         finally
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
         }
+    }
+
+    private void AddNewMovieToRepository()
+    {
+        MenuHelper.AddSeparator();
+        Console.WriteLine("Add new movie:");
+        Console.Write("\tTitle: ");
+        var title = Console.ReadLine()!.Trim();
+        title = PascalFormat(title);
+
+        Console.Write("\tYear: ");
+        var year = Console.ReadLine()!.Trim();
+        if (!int.TryParse(year, out int releaseYear))
+        {
+            throw new FormatException("ERROR : Invalid format!\n\t\tValue must be integer!\n\tOr you stuck here for long time!");
+        }
+
+        Console.Write("\tUniverse: ");
+        var universe = Console.ReadLine()!.Trim();
+        universe = PascalFormat(universe);
+
+        Console.Write("\tBoxOffice: ");
+        var boxOffice = Console.ReadLine()!.Trim();
+        if (!decimal.TryParse(boxOffice, out decimal profits))
+        {
+            throw new FormatException("ERROR : Invalid format!\n\t\tValue must be digit!\n\tOr you stuck here for long time!");
+        }
+
+        if (_repository.GetAll().Where(x => x.Title == title).Any())
+        {
+            throw new ArgumentException("ERROR : Movie exists in database! You can not add same movie!");
+        }
+
+        _repository.Add(new Movie { Title = title, Year = releaseYear, Universe = universe, BoxOffice = profits });
+
+        MenuHelper.AddSeparator();
+        Console.WriteLine($"INFO :\tMovie '{title}' added succesfully! Do not forget save changes!");
     }
 
     protected override void RemoveItem()
     {
         try
         {
-            ReadAllItems();
-            Console.Write("\tChoose one ID from list above: ");
-            var choise = Console.ReadLine()!.Trim();
-            if (!int.TryParse(choise, out int id))
-            {
-                throw new FormatException($"ERROR : Invalid format! Insert MUST be a digit!");
-            }
-
-            var movie = _repository.GetById(id) ?? throw new ArgumentException($"ERROR : Invalid value! ID not exists! Try again!");
-            _repository.Remove(movie!);
-
-            AddSeparator();
-            Console.WriteLine($"INFO :\tMovie {movie.Title} from {movie.Universe} universe removed succesfully!\n\tDo not forget save changes!");
+            RemoveMovieFromRepository();
         }
         catch (FormatException fe)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine(fe.Message);
         }
         catch (ArgumentException ae)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine(ae.Message);
         }
         finally
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
         }
+    }
+
+    private void RemoveMovieFromRepository()
+    {
+        ReadAllItems();
+        Console.Write("\tChoose one ID from list above: ");
+        var choise = Console.ReadLine()!.Trim();
+        if (!int.TryParse(choise, out int id))
+        {
+            throw new FormatException($"ERROR : Invalid format! Insert MUST be a digit!");
+        }
+
+        var movie = _repository.GetById(id) ?? throw new ArgumentException($"ERROR : Invalid value! ID not exists! Try again!");
+        _repository.Remove(movie!);
+
+        MenuHelper.AddSeparator();
+        Console.WriteLine($"INFO :\tMovie '{movie.Title}' from '{movie.Universe}' universe removed succesfully!\n\tDo not forget save changes!");
     }
 }

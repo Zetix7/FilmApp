@@ -1,4 +1,5 @@
 ﻿using FilmApp.Components.FileCreator;
+using FilmApp.Components.Menu.Extensions;
 using FilmApp.Data.Entities;
 using FilmApp.Data.Repositories;
 using System.Xml;
@@ -19,23 +20,11 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         _xmlFile = xmlFile;
     }
 
-    public void LoadMenu()
+    public new void LoadMenu()
     {
         while (true)
         {
-            Console.WriteLine("Artists - What do you want to do?");
-            Console.WriteLine("\tChoose one option:");
-            Console.WriteLine("\t\t1 - Read all artists");
-            Console.WriteLine("\t\t2 - Read artist by ID");
-            Console.WriteLine("\t\t3 - Add new artist");
-            Console.WriteLine("\t\t4 - Remove artist");
-            Console.WriteLine("\t\t5 - Save changes");
-            Console.WriteLine("\t\t6 - Read from artists.csv file");
-            Console.WriteLine("\t\t7 - Save to artists.csv file");
-            Console.WriteLine("\t\t8 - Read from artists.xml file");
-            Console.WriteLine("\t\t9 - Save to artists.xml file");
-            Console.WriteLine("\t\tQ - Exit");
-            Console.Write("\tYour choise: ");
+            base.LoadMenu();
             var choise = Console.ReadLine()!.ToUpper();
 
             if (choise == "1")
@@ -76,15 +65,15 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             }
             else if (choise == "Q")
             {
-                AddSeparator();
+                MenuHelper.AddSeparator();
                 break;
             }
             else
             {
-                AddSeparator();
+                MenuHelper.AddSeparator();
                 Console.WriteLine("ERROR : Wrong option! \n\t\tChoose one option: 1 or 2 or 3 or 4 or 5 or 6 or 7 or 8 or 9 or Q! \n" +
                     "\tIf not, You will stuck here forever!");
-                AddSeparator();
+                MenuHelper.AddSeparator();
             }
         }
     }
@@ -93,13 +82,13 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
     {
         var artists = _repository.GetAll().ToList();
 
-        AddSeparator();
-        if (artists.Count() > 0)
+        MenuHelper.AddSeparator();
+        if (artists.Count > 0)
         {
             var data = new XElement("Artists", artists.Select(x =>
                 new XElement("Artist",
-                    new XAttribute("FirstName", x.FirstName),
-                    new XAttribute("LastName", x.LastName))));
+                    new XAttribute("FirstName", x.FirstName!),
+                    new XAttribute("LastName", x.LastName!))));
 
             var xmlFile = new XDocument(data);
             xmlFile.Save(@"Resources\Files\artists.xml");
@@ -110,20 +99,20 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         {
             Console.WriteLine("INFO : Database is empty!");
         }
-        AddSeparator();
+        MenuHelper.AddSeparator();
     }
 
     private void ReadArtistFromXmlFile(string pathName)
     {
         try
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             if (!File.Exists(pathName))
             {
                 throw new FileNotFoundException($"ERROR : Directory or file '{pathName}' not exists!");
             }
 
-            var artists = _xmlFile.ReadArtistXmlFile(pathName);
+            var artists = _xmlFile.ReadArtistsXmlFile(pathName);
             ReadArtists(artists);
         }
         catch (FileNotFoundException fe)
@@ -140,7 +129,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         }
         finally
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
         }
     }
 
@@ -155,8 +144,8 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             }
             _repository.Add(new Artist
             {
-                FirstName = artist.FirstName,
-                LastName = artist.LastName,
+                FirstName = artist.FirstName!,
+                LastName = artist.LastName!,
             });
             count++;
             Console.WriteLine($"\t{artist.FirstName}, {artist.LastName}");
@@ -164,7 +153,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
 
         if (count > 0)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine("INFO : Data succesfully read and prepered to save in database! \n" +
                 "\tDo not forget save changes, If you want save it to database!");
         }
@@ -178,7 +167,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
     {
         var artists = _repository.GetAll().ToList();
 
-        AddSeparator();
+        MenuHelper.AddSeparator();
         if (artists.Count > 0)
         {
             using (var csvFile = File.CreateText(@"Resources\Files\artists.csv"))
@@ -195,20 +184,20 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         {
             Console.WriteLine("INFO : Database is empty!");
         }
-        AddSeparator();
+        MenuHelper.AddSeparator();
     }
 
     private void ReadArtistFromCsvFile(string pathName)
     {
         try
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             if (!File.Exists(pathName))
             {
                 throw new FileNotFoundException($"ERROR : Directory or file '{pathName}' not exists!");
             }
 
-            var artists = _csvFile.ReadArtistCsvFile(pathName);
+            var artists = _csvFile.ReadArtistsCsvFile(pathName);
             ReadArtists(artists);
         }
         catch (FileNotFoundException fe)
@@ -221,7 +210,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         }
         finally
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
         }
     }
 
@@ -229,68 +218,78 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
     {
         try
         {
-            ReadAllItems();
-            Console.Write("\tChoose one ID from list above: ");
-            var choise = Console.ReadLine()!.Trim();
-            if (!int.TryParse(choise, out int id))
-            {
-                throw new FormatException($"ERROR : Invalid format! Insert MUST be a digit!");
-            }
-
-            var artist = _repository.GetById(id) ?? throw new ArgumentException($"ERROR : Invalid value! ID not exists! Try again!");
-            _repository.Remove(artist!);
-
-            AddSeparator();
-            Console.WriteLine($"INFO :\tArtist {artist.FirstName} {artist.LastName} removed succesfully!\n\tDo not forget save changes!");
+            RemoveArtistFromRepository();
         }
         catch (FormatException fe)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine(fe.Message);
         }
         catch (ArgumentException ae)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine(ae.Message);
         }
         finally
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
         }
+    }
+
+    private void RemoveArtistFromRepository()
+    {
+        ReadAllItems();
+        Console.Write("\tChoose one ID from list above: ");
+        var choise = Console.ReadLine()!.Trim();
+        if (!int.TryParse(choise, out int id))
+        {
+            throw new FormatException($"ERROR : Invalid format! Insert MUST be a digit!");
+        }
+
+        var artist = _repository.GetById(id) ?? throw new ArgumentException($"ERROR : Invalid value! ID not exists! Try again!");
+        _repository.Remove(artist!);
+
+        MenuHelper.AddSeparator();
+        Console.WriteLine($"INFO :\tArtist '{artist.FirstName} {artist.LastName}' removed succesfully!\n\tDo not forget save changes!");
     }
 
     protected override void AddNewItem()
     {
         try
         {
-            AddSeparator();
-            Console.WriteLine("Add new artist:");
-            Console.Write("\tFirstName: ");
-            var firstName = Console.ReadLine()!.Trim();
-            firstName = PascalFormat(firstName);
-
-            Console.Write("\tLastName: ");
-            var lastName = Console.ReadLine()!.Trim();
-            lastName = PascalFormat(lastName);
-
-            if (_repository.GetAll().Where(x => x.FirstName == firstName && x.LastName == lastName).Any())
-            {
-                throw new ArgumentException("ERROR : Artist exists in database! You can not add same artist!");
-            }
-
-            _repository.Add(new Artist { FirstName = firstName, LastName = lastName });
-
-            AddSeparator();
-            Console.WriteLine($"INFO :\tArtist {firstName} {lastName} added succesfully! Do not forget save changes!");
+            AddNewArtistToRepository();
         }
         catch (ArgumentException ae)
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
             Console.WriteLine(ae.Message);
         }
         finally
         {
-            AddSeparator();
+            MenuHelper.AddSeparator();
         }
+    }
+
+    private void AddNewArtistToRepository()
+    {
+        MenuHelper.AddSeparator();
+        Console.WriteLine("Add new artist:");
+        Console.Write("\tFirstName: ");
+        var firstName = Console.ReadLine()!.Trim();
+        firstName = PascalFormat(firstName);
+
+        Console.Write("\tLastName: ");
+        var lastName = Console.ReadLine()!.Trim();
+        lastName = PascalFormat(lastName);
+
+        if (_repository.GetAll().Where(x => x.FirstName == firstName && x.LastName == lastName).Any())
+        {
+            throw new ArgumentException("ERROR : Artist exists in database! You can not add same artist!");
+        }
+
+        _repository.Add(new Artist { FirstName = firstName, LastName = lastName });
+
+        MenuHelper.AddSeparator();
+        Console.WriteLine($"INFO :\tArtist '{firstName} {lastName}' added succesfully! Do not forget save changes!");
     }
 }

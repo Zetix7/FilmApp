@@ -1,5 +1,6 @@
 ﻿using FilmApp.Components.DataProvider;
 using FilmApp.Components.FileCreator.Models;
+using System.Globalization;
 
 namespace FilmApp.Components.FileCreator;
 
@@ -12,29 +13,25 @@ public class CsvFile : ICsvFile
         _dataProvider = dataProvider;
     }
 
-    public void CreateArtistCsvFile()
+    public void CreateArtistsCsvFile()
     {
-        using (var writer = File.CreateText(@"Resources\Files\artists.csv"))
+        using var writer = File.CreateText(@"Resources\Files\artists.csv");
+        foreach (var line in _dataProvider.GenerateSampleArtists())
         {
-            foreach (var line in _dataProvider.GenerateSampleArtists())
-            {
-                writer.WriteLine($"{line.FirstName},{line.LastName}");
-            }
+            writer.WriteLine($"{line.FirstName},{line.LastName}");
         }
     }
 
-    public void CreateMovieCsvFile()
+    public void CreateMoviesCsvFile()
     {
-        using (var writer = File.CreateText(@"Resources\Files\movies.csv"))
+        using var writer = File.CreateText(@"Resources\Files\movies.csv");
+        foreach (var line in _dataProvider.GenerateSampleMovies())
         {
-            foreach (var line in _dataProvider.GenerateSampleMovies())
-            {
-                writer.WriteLine($"{line.Title},{line.Year},{line.Universe},{line.BoxOffice}");
-            }
+            writer.WriteLine($"{line.Title},{line.Year},{line.Universe},{line.BoxOffice}");
         }
     }
 
-    public List<Artist> ReadArtistCsvFile(string pathName)
+    public List<Artist> ReadArtistsCsvFile(string pathName)
     {
         var artists = File.ReadAllLines(pathName).Where(x => x.Length > 1).Select(x =>
          {
@@ -50,7 +47,7 @@ public class CsvFile : ICsvFile
     }
 
 
-    public List<Movie> ReadMovieCsvFile(string pathName)
+    public List<Movie> ReadMoviesCsvFile(string pathName)
     {
         var movies = File.ReadAllLines(pathName).Where(x => x.Length > 1).Select(x =>
         {
@@ -58,9 +55,9 @@ public class CsvFile : ICsvFile
             return new Movie
             {
                 Title = columns[0],
-                Year = int.Parse(columns[1]),
+                Year = int.Parse(columns[1], CultureInfo.InvariantCulture),
                 Universe = columns[2],
-                BoxOffice = decimal.Parse(columns[3])
+                BoxOffice = decimal.Parse(columns[3], CultureInfo.InvariantCulture)
             };
         });
 
