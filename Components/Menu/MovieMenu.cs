@@ -1,8 +1,8 @@
 ﻿using FilmApp.Components.FileCreator;
+using FilmApp.Components.FileCreator.Extensions;
 using FilmApp.Components.Menu.Extensions;
 using FilmApp.Data.Entities;
 using FilmApp.Data.Repositories;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -115,7 +115,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
             }
 
             var movies = _xmlFile.ReadMoviesXmlFile(pathName);
-            ReadMovies(movies);
+            AddMoviesToRepository(movies);
         }
         catch (FileNotFoundException fe)
         {
@@ -142,12 +142,8 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         MenuHelper.AddSeparator();
         if (movies.Count > 0)
         {
-            var data = new StringBuilder();
-            foreach (var movie in movies)
-            {
-                data.AppendLine($"{movie.Title},{movie.Year},{movie.Universe},{movie.BoxOffice}\n");
-            }
-            File.AppendAllText(@"Resources\Files\movies.csv", data.ToString());
+            using var csvFile = File.CreateText(@"Resources\Files\movies.csv");
+            CsvFileHelper.SaveMoviesToCsvFile(csvFile, movies);
 
             Console.WriteLine("INFO : Data from databese succesfully saved to movies.csv file!");
         }
@@ -169,7 +165,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
             }
 
             var movies = _csvFile.ReadMoviesCsvFile(pathName);
-            ReadMovies(movies);
+            AddMoviesToRepository(movies);
         }
         catch (FileNotFoundException fe)
         {
@@ -185,7 +181,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         }
     }
 
-    private void ReadMovies(List<FileCreator.Models.Movie> movies)
+    private void AddMoviesToRepository(List<FileCreator.Models.Movie> movies)
     {
         var count = 0;
         foreach (var movie in movies)
@@ -245,7 +241,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         Console.WriteLine("Add new movie:");
         Console.Write("\tTitle: ");
         var title = Console.ReadLine()!.Trim();
-        title = PascalFormat(title);
+        title = ConvertToPascalFormat(title);
 
         Console.Write("\tYear: ");
         var year = Console.ReadLine()!.Trim();
@@ -256,7 +252,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
 
         Console.Write("\tUniverse: ");
         var universe = Console.ReadLine()!.Trim();
-        universe = PascalFormat(universe);
+        universe = ConvertToPascalFormat(universe);
 
         Console.Write("\tBoxOffice: ");
         var boxOffice = Console.ReadLine()!.Trim();

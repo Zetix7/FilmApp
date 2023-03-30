@@ -15,7 +15,7 @@ public abstract class Menu<T> : IMenu<T> where T : class, IEntity
 
     public void LoadMenu()
     {
-        Console.WriteLine($"{PascalFormat(typeof(T).Name)} - What do you want to do?");
+        Console.WriteLine($"{ConvertToPascalFormat(typeof(T).Name)} - What do you want to do?");
         Console.WriteLine("\tChoose one option:");
         Console.WriteLine($"\t\t1 - Read all {typeof(T).Name.ToLower()}s");
         Console.WriteLine($"\t\t2 - Read {typeof(T).Name.ToLower()} by ID");
@@ -26,7 +26,7 @@ public abstract class Menu<T> : IMenu<T> where T : class, IEntity
         Console.WriteLine($"\t\t7 - Save to {typeof(T).Name.ToLower()}s.csv file");
         Console.WriteLine($"\t\t8 - Read from {typeof(T).Name.ToLower()}s.xml file");
         Console.WriteLine($"\t\t9 - Save to {typeof(T).Name.ToLower()}s.xml file");
-        Console.WriteLine("\t\tQ - Exit");
+        Console.WriteLine("\t\tQ - Return");
         Console.Write("\tYour choise: ");
     }
 
@@ -48,6 +48,7 @@ public abstract class Menu<T> : IMenu<T> where T : class, IEntity
             MenuHelper.AddSeparator();
             Console.Write("\tChoose one ID: ");
             var choise = Console.ReadLine()!.Trim();
+
             if (!int.TryParse(choise, out int id))
             {
                 throw new FormatException($"ERROR : Invalid format! Insert MUST be a digit!");
@@ -89,15 +90,15 @@ public abstract class Menu<T> : IMenu<T> where T : class, IEntity
         MenuHelper.AddSeparator();
     }
 
-    protected string PascalFormat(string insert)
+    protected string ConvertToPascalFormat(string input)
     {
-        if (insert.Length < 1 || string.IsNullOrWhiteSpace(insert))
+        if (input.Length < 1 || string.IsNullOrWhiteSpace(input))
         {
-            throw new ArgumentException("ERROR : Invalid value! Insert is empty or contains only spaces!");
+            throw new ArgumentException("ERROR : Invalid value! Input is empty or contains only spaces!");
         }
 
-        insert = insert.Trim();
-        var words = insert.Split(' ');
+        input = input.Trim();
+        var words = input.Split(' ');
         var result = "";
 
         foreach (var word in words)
@@ -106,7 +107,6 @@ public abstract class Menu<T> : IMenu<T> where T : class, IEntity
             {
                 continue;
             }
-            //result += word.Substring(0, 1).ToUpper() + word.Substring(1).ToLower() + " ";
             result += word[..1].ToUpper() + word[1..].ToLower() + " ";
         }
 

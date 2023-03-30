@@ -1,4 +1,5 @@
 ﻿using FilmApp.Components.DataProvider;
+using FilmApp.Components.FileCreator.Extensions;
 using FilmApp.Components.FileCreator.Models;
 using System.Globalization;
 
@@ -25,10 +26,7 @@ public class CsvFile : ICsvFile
     public void CreateMoviesCsvFile()
     {
         using var writer = File.CreateText(@"Resources\Files\movies.csv");
-        foreach (var line in _dataProvider.GenerateSampleMovies())
-        {
-            writer.WriteLine($"{line.Title},{line.Year},{line.Universe},{line.BoxOffice}");
-        }
+        CsvFileHelper.SaveMoviesToCsvFile(writer, _dataProvider.GenerateSampleMovies());
     }
 
     public List<Artist> ReadArtistsCsvFile(string pathName)

@@ -13,13 +13,12 @@ public class XmlFile : IXmlFile
         _csvFile = csvFile;
     }
 
-    public void CreateArtistsXmlFile()
+    public void CreateArtistsXmlFileFromCsvFile()
     {
         var csvArtists = _csvFile.ReadArtistsCsvFile(@"Resources\Files\artists.csv");
 
         var xmlArtists = new XElement("Artists", csvArtists
-            .Select(x =>
-                new XElement("Artist",
+            .Select(x => new XElement("Artist",
                     new XAttribute("FirstName", x.FirstName!),
                     new XAttribute("LastName", x.LastName!))));
 
@@ -27,17 +26,16 @@ public class XmlFile : IXmlFile
         xmlArtists.Save(@"Resources\Files\artists.xml");
     }
 
-    public void CreateMoviesXmlFile()
+    public void CreateMoviesXmlFileFromCsvFile()
     {
         var csvMovies = _csvFile.ReadMoviesCsvFile(@"Resources\Files\movies.csv");
 
         var xmlMovies = new XElement("Movies", csvMovies
-            .Select(x =>
-                new XElement("Movie",
-                    new XAttribute("Title", x.Title!),
-                    new XAttribute("Year", x.Year),
-                    new XAttribute("Universe", x.Universe!),
-                    new XAttribute("BoxOffice", x.BoxOffice))));
+            .Select(x => new XElement("Movie",
+                new XAttribute("Title", x.Title!),
+                new XAttribute("Year", x.Year),
+                new XAttribute("Universe", x.Universe!),
+                new XAttribute("BoxOffice", x.BoxOffice))));
 
         var xmlFile = new XDocument(xmlMovies);
         xmlFile.Save(@"Resources\Files\movies.xml");

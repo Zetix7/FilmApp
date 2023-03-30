@@ -7,5 +7,10 @@ public class Movie : EntityBase
     public string? Universe { get; set; }
     public decimal BoxOffice { get; set; }
 
-    public override string ToString() => $"{base.ToString()} | Title: {Title} | Y: {Year} | Universe: {Universe} | BoxOffice: {BoxOffice:C}";
+    public override string ToString() => 
+        $"{base.ToString()} | " +
+        $"Title: {Title} | " +
+        $"Y: {Year} | " +
+        $"Universe: {Universe} | " +
+        $"BoxOffice: {BoxOffice.ToString("C", new System.Globalization.CultureInfo("en-US"))}";
 }

@@ -1,9 +1,4 @@
-﻿using FilmApp.Components.DataProvider;
-using FilmApp.Components.FileCreator;
-using FilmApp.Data;
-using FilmApp.Data.Entities;
-using FilmApp.Data.Repositories;
-using FilmApp.Data.Repositories.Extensions;
+﻿using FilmApp.Data;
 using FilmApp.Services;
 
 namespace FilmApp;

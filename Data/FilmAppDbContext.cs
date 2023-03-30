@@ -11,4 +11,10 @@ public class FilmAppDbContext : DbContext
 
     public DbSet<Artist> Artists { get; set; }
     public DbSet<Movie> Movies { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.UseSqlServer("Data Source=.\\SQLEXPRESS;Initial Catalog=FilmAppStorage;Integrated Security=True;Encrypt=False");
+    }
 }

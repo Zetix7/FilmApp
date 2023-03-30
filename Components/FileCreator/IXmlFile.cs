@@ -4,8 +4,8 @@ namespace FilmApp.Components.FileCreator;
 
 public interface IXmlFile
 {
-    void CreateArtistsXmlFile();
-    void CreateMoviesXmlFile();
+    void CreateArtistsXmlFileFromCsvFile();
+    void CreateMoviesXmlFileFromCsvFile();
     List<Artist> ReadArtistsXmlFile(string pathName);
     List<Movie> ReadMoviesXmlFile(string pathName);
 }

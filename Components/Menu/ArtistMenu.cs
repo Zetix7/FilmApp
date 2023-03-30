@@ -49,7 +49,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             }
             else if (choise == "6")
             {
-                ReadArtistFromCsvFile(@"Resources\Files\artists.csv");
+                ReadArtistsFromCsvFile(@"Resources\Files\artists.csv");
             }
             else if (choise == "7")
             {
@@ -57,7 +57,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             }
             else if (choise == "8")
             {
-                ReadArtistFromXmlFile(@"Resources\Files\artists.xml");
+                ReadArtistsFromXmlFile(@"Resources\Files\artists.xml");
             }
             else if (choise == "9")
             {
@@ -85,15 +85,15 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         MenuHelper.AddSeparator();
         if (artists.Count > 0)
         {
-            var data = new XElement("Artists", artists.Select(x =>
-                new XElement("Artist",
+            var data = new XElement("Artists", artists
+                .Select(x => new XElement("Artist",
                     new XAttribute("FirstName", x.FirstName!),
                     new XAttribute("LastName", x.LastName!))));
 
             var xmlFile = new XDocument(data);
             xmlFile.Save(@"Resources\Files\artists.xml");
 
-            Console.WriteLine("INFO : Data from databese succesfully saved to artist.xml file!");
+            Console.WriteLine("INFO : Data from databese succesfully saved to artists.xml file!");
         }
         else
         {
@@ -102,18 +102,18 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         MenuHelper.AddSeparator();
     }
 
-    private void ReadArtistFromXmlFile(string pathName)
+    private void ReadArtistsFromXmlFile(string pathName)
     {
+        MenuHelper.AddSeparator();
         try
         {
-            MenuHelper.AddSeparator();
             if (!File.Exists(pathName))
             {
                 throw new FileNotFoundException($"ERROR : Directory or file '{pathName}' not exists!");
             }
 
             var artists = _xmlFile.ReadArtistsXmlFile(pathName);
-            ReadArtists(artists);
+            AddArtistsToRepository(artists);
         }
         catch (FileNotFoundException fe)
         {
@@ -133,7 +133,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         }
     }
 
-    private void ReadArtists(List<FileCreator.Models.Artist> artists)
+    private void AddArtistsToRepository(List<FileCreator.Models.Artist> artists)
     {
         var count = 0;
         foreach (var artist in artists)
@@ -187,7 +187,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         MenuHelper.AddSeparator();
     }
 
-    private void ReadArtistFromCsvFile(string pathName)
+    private void ReadArtistsFromCsvFile(string pathName)
     {
         try
         {
@@ -198,7 +198,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             }
 
             var artists = _csvFile.ReadArtistsCsvFile(pathName);
-            ReadArtists(artists);
+            AddArtistsToRepository(artists);
         }
         catch (FileNotFoundException fe)
         {
@@ -276,11 +276,11 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         Console.WriteLine("Add new artist:");
         Console.Write("\tFirstName: ");
         var firstName = Console.ReadLine()!.Trim();
-        firstName = PascalFormat(firstName);
+        firstName = ConvertToPascalFormat(firstName);
 
         Console.Write("\tLastName: ");
         var lastName = Console.ReadLine()!.Trim();
-        lastName = PascalFormat(lastName);
+        lastName = ConvertToPascalFormat(lastName);
 
         if (_repository.GetAll().Where(x => x.FirstName == firstName && x.LastName == lastName).Any())
         {
