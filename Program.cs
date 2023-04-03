@@ -6,7 +6,6 @@ using FilmApp.Data;
 using FilmApp.Data.Entities;
 using FilmApp.Data.Repositories;
 using FilmApp.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 var services = new ServiceCollection();
