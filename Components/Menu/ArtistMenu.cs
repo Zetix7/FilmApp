@@ -45,21 +45,17 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             }
             else if (choise == "5")
             {
-                SaveChangesInDatabase();
+                ReadArtistsFromCsvFile(@"Resources\Files\artists.csv");
             }
             else if (choise == "6")
             {
-                ReadArtistsFromCsvFile(@"Resources\Files\artists.csv");
+                SaveArtistsToCsvFile();
             }
             else if (choise == "7")
             {
-                SaveArtistsToCsvFile();
-            }
-            else if (choise == "8")
-            {
                 ReadArtistsFromXmlFile(@"Resources\Files\artists.xml");
             }
-            else if (choise == "9")
+            else if (choise == "8")
             {
                 SaveArtistsToXmlFile();
             }
@@ -71,7 +67,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             else
             {
                 MenuHelper.AddSeparator();
-                Console.WriteLine("ERROR : Wrong option! \n\t\tChoose one option: 1 or 2 or 3 or 4 or 5 or 6 or 7 or 8 or 9 or Q! \n" +
+                Console.WriteLine("ERROR : Wrong option! \n\t\tChoose one option: 1 or 2 or 3 or 4 or 5 or 6 or 7 or 8 or Q! \n" +
                     "\tIf not, You will stuck here forever!");
                 MenuHelper.AddSeparator();
             }
@@ -93,7 +89,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             var xmlFile = new XDocument(data);
             xmlFile.Save(@"Resources\Files\artists.xml");
 
-            Console.WriteLine("INFO : Data from databese succesfully saved to artists.xml file!");
+            Console.WriteLine("INFO : Data from database succesfully saved to artists.xml file!");
         }
         else
         {
@@ -113,7 +109,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             }
 
             var artists = _xmlFile.ReadArtistsXmlFile(pathName);
-            AddArtistsToRepository(artists);
+            AddArtistsToDatabase(artists);
         }
         catch (FileNotFoundException fe)
         {
@@ -133,9 +129,9 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         }
     }
 
-    private void AddArtistsToRepository(List<FileCreator.Models.Artist> artists)
+    private void AddArtistsToDatabase(List<FileCreator.Models.Artist> artists)
     {
-        var count = 0;
+        var isAddedNewArtistToDatabase = false;
         foreach (var artist in artists)
         {
             if (_repository.GetAll().Where(x => x.FirstName == artist.FirstName && x.LastName == artist.LastName).Any())
@@ -147,15 +143,16 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
                 FirstName = artist.FirstName!,
                 LastName = artist.LastName!,
             });
-            count++;
+
+            _repository.Save();
+            isAddedNewArtistToDatabase = true;
             Console.WriteLine($"\t{artist.FirstName}, {artist.LastName}");
         }
 
-        if (count > 0)
+        if (isAddedNewArtistToDatabase)
         {
             MenuHelper.AddSeparator();
-            Console.WriteLine("INFO : Data succesfully read and prepered to save in database! \n" +
-                "\tDo not forget save changes, If you want save it to database!");
+            Console.WriteLine("INFO : Data succesfully read and saved in database!");
         }
         else
         {
@@ -178,7 +175,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
                 }
             }
 
-            Console.WriteLine("INFO : Data from databese succesfully saved to artists.csv file!");
+            Console.WriteLine("INFO : Data from database succesfully saved to artists.csv file!");
         }
         else
         {
@@ -198,7 +195,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             }
 
             var artists = _csvFile.ReadArtistsCsvFile(pathName);
-            AddArtistsToRepository(artists);
+            AddArtistsToDatabase(artists);
         }
         catch (FileNotFoundException fe)
         {
@@ -218,7 +215,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
     {
         try
         {
-            RemoveArtistFromRepository();
+            RemoveArtistFromDatabase();
         }
         catch (FormatException fe)
         {
@@ -236,7 +233,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         }
     }
 
-    private void RemoveArtistFromRepository()
+    private void RemoveArtistFromDatabase()
     {
         ReadAllItems();
         Console.Write("\tChoose one ID from list above: ");
@@ -248,16 +245,17 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
 
         var artist = _repository.GetById(id) ?? throw new ArgumentException($"ERROR : Invalid value! ID not exists! Try again!");
         _repository.Remove(artist!);
+        _repository.Save();
 
         MenuHelper.AddSeparator();
-        Console.WriteLine($"INFO :\tArtist '{artist.FirstName} {artist.LastName}' removed succesfully!\n\tDo not forget save changes!");
+        Console.WriteLine($"INFO : Artist '{artist.FirstName} {artist.LastName}' removed succesfully!\n\tChanges saved in database!");
     }
 
     protected override void AddNewItem()
     {
         try
         {
-            AddNewArtistToRepository();
+            AddNewArtistToDatabase();
         }
         catch (ArgumentException ae)
         {
@@ -270,7 +268,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         }
     }
 
-    private void AddNewArtistToRepository()
+    private void AddNewArtistToDatabase()
     {
         MenuHelper.AddSeparator();
         Console.WriteLine("Add new artist:");
@@ -288,8 +286,9 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         }
 
         _repository.Add(new Artist { FirstName = firstName, LastName = lastName });
+        _repository.Save();
 
         MenuHelper.AddSeparator();
-        Console.WriteLine($"INFO :\tArtist '{firstName} {lastName}' added succesfully! Do not forget save changes!");
+        Console.WriteLine($"INFO : Artist '{firstName} {lastName}' added succesfully!\n\tChanges saved in database!");
     }
 }

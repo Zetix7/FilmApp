@@ -21,11 +21,10 @@ public abstract class Menu<T> : IMenu<T> where T : class, IEntity
         Console.WriteLine($"\t\t2 - Read {typeof(T).Name.ToLower()} by ID");
         Console.WriteLine($"\t\t3 - Add new {typeof(T).Name.ToLower()}");
         Console.WriteLine($"\t\t4 - Remove {typeof(T).Name.ToLower()}");
-        Console.WriteLine("\t\t5 - Save changes");
-        Console.WriteLine($"\t\t6 - Read from {typeof(T).Name.ToLower()}s.csv file");
-        Console.WriteLine($"\t\t7 - Save to {typeof(T).Name.ToLower()}s.csv file");
-        Console.WriteLine($"\t\t8 - Read from {typeof(T).Name.ToLower()}s.xml file");
-        Console.WriteLine($"\t\t9 - Save to {typeof(T).Name.ToLower()}s.xml file");
+        Console.WriteLine($"\t\t5 - Read from {typeof(T).Name.ToLower()}s.csv file");
+        Console.WriteLine($"\t\t6 - Save to {typeof(T).Name.ToLower()}s.csv file");
+        Console.WriteLine($"\t\t7 - Read from {typeof(T).Name.ToLower()}s.xml file");
+        Console.WriteLine($"\t\t8 - Save to {typeof(T).Name.ToLower()}s.xml file");
         Console.WriteLine("\t\tQ - Return");
         Console.Write("\tYour choise: ");
     }
@@ -34,13 +33,6 @@ public abstract class Menu<T> : IMenu<T> where T : class, IEntity
 
     protected abstract void AddNewItem();
 
-    protected void SaveChangesInDatabase()
-    {
-        _repository.Save();
-        MenuHelper.AddSeparator();
-        Console.WriteLine("\tChanges saved!");
-        MenuHelper.AddSeparator();
-    }
     protected void ReadItemById()
     {
         try
