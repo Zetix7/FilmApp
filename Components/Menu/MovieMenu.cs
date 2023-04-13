@@ -1,5 +1,6 @@
 ﻿using FilmApp.Components.FileCreator;
 using FilmApp.Components.FileCreator.Extensions;
+using FilmApp.Components.FileCreator.Models;
 using FilmApp.Components.Menu.Extensions;
 using FilmApp.Data.Entities;
 using FilmApp.Data.Repositories;
@@ -91,11 +92,11 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
             var xmlFile = new XDocument(data);
             xmlFile.Save(@"Resources\Files\movies.xml");
 
-            Console.WriteLine("INFO : Data from database succesfully saved to movies.xml file!");
+            Console.WriteLine("INFO : Data succesfully saved to movies.xml file!");
         }
         else
         {
-            Console.WriteLine("INFO : Database is empty!");
+            Console.WriteLine("INFO : No data to save!");
         }
         MenuHelper.AddSeparator();
     }
@@ -111,7 +112,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
             }
 
             var movies = _xmlFile.ReadMoviesXmlFile(pathName);
-            AddMoviesToDatabase(movies);
+            AddMoviesToRepository(movies);
         }
         catch (FileNotFoundException fe)
         {
@@ -141,11 +142,11 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
             using var csvFile = File.CreateText(@"Resources\Files\movies.csv");
             CsvFileHelper.SaveMoviesToCsvFile(csvFile, movies);
 
-            Console.WriteLine("INFO : Data from database succesfully saved to movies.csv file!");
+            Console.WriteLine("INFO : Data succesfully saved to movies.csv file!");
         }
         else
         {
-            Console.WriteLine("INFO : Database is empty!");
+            Console.WriteLine("INFO : No data to save!");
         }
         MenuHelper.AddSeparator();
     }
@@ -161,7 +162,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
             }
 
             var movies = _csvFile.ReadMoviesCsvFile(pathName);
-            AddMoviesToDatabase(movies);
+            AddMoviesToRepository(movies);
         }
         catch (FileNotFoundException fe)
         {
@@ -177,9 +178,9 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         }
     }
 
-    private void AddMoviesToDatabase(List<FileCreator.Models.Movie> movies)
+    private void AddMoviesToRepository(List<MovieInFile> movies)
     {
-        var isAddedNewMovieToDatabase = false;
+        var isAddedNewMovieToRepository = false;
         foreach (var movie in movies)
         {
             if (_repository.GetAll().Where(x => x.Title == movie.Title && x.Universe == movie.Universe).Any())
@@ -196,18 +197,18 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
             });
 
             _repository.Save();
-            isAddedNewMovieToDatabase = true;
+            isAddedNewMovieToRepository = true;
             Console.WriteLine($"\t{movie.Title}, {movie.Year}, {movie.Universe}, {movie.BoxOffice.ToString("C", new System.Globalization.CultureInfo("en-US"))}");
         }
 
-        if (isAddedNewMovieToDatabase)
+        if (isAddedNewMovieToRepository)
         {
             MenuHelper.AddSeparator();
-            Console.WriteLine("INFO : Data succesfully read and saved in database!");
+            Console.WriteLine("INFO : Data succesfully read and saved!");
         }
         else
         {
-            Console.WriteLine("INFO : No records to save in database!");
+            Console.WriteLine("INFO : No records to save!");
         }
     }
 
@@ -215,7 +216,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
     {
         try
         {
-            AddNewMovieToDatabase();
+            AddNewMovieToRepository();
         }
         catch (ArgumentException ae)
         {
@@ -233,7 +234,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         }
     }
 
-    private void AddNewMovieToDatabase()
+    private void AddNewMovieToRepository()
     {
         MenuHelper.AddSeparator();
         Console.WriteLine("Add new movie:");
@@ -261,21 +262,21 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
 
         if (_repository.GetAll().Where(x => x.Title == title).Any())
         {
-            throw new ArgumentException("ERROR : Movie exists in database! You can not add same movie!");
+            throw new ArgumentException("ERROR : Movie exists! You can not add same movie!");
         }
 
         _repository.Add(new Movie { Title = title, Year = releaseYear, Universe = universe, BoxOffice = profits });
         _repository.Save();
 
         MenuHelper.AddSeparator();
-        Console.WriteLine($"INFO : Movie '{title}' added succesfully!\n\tChanges saved in database!");
+        Console.WriteLine($"INFO : Movie '{title}' added succesfully!\n\tChanges saved!");
     }
 
     protected override void RemoveItem()
     {
         try
         {
-            RemoveMovieFromDatabase();
+            RemoveMovieFromRepository();
         }
         catch (FormatException fe)
         {
@@ -293,7 +294,7 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         }
     }
 
-    private void RemoveMovieFromDatabase()
+    private void RemoveMovieFromRepository()
     {
         ReadAllItems();
         Console.Write("\tChoose one ID from list above: ");
@@ -308,6 +309,6 @@ internal class MovieMenu : Menu<Movie>, IMenu<Movie>
         _repository.Save();
 
         MenuHelper.AddSeparator();
-        Console.WriteLine($"INFO : Movie '{movie.Title}' from '{movie.Universe}' universe removed succesfully!\n\tChanges saved in database!");
+        Console.WriteLine($"INFO : Movie '{movie.Title}' from '{movie.Universe}' universe removed succesfully!\n\tChanges saved!");
     }
 }

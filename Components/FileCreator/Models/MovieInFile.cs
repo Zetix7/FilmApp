@@ -1,6 +1,6 @@
 ﻿namespace FilmApp.Components.FileCreator.Models;
 
-public class Movie
+public class MovieInFile
 {
     public string? Title { get; set; }
     public int Year { get; set; }

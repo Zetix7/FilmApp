@@ -10,8 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 var services = new ServiceCollection();
 services.AddSingleton<IApp, App>();
-//services.AddSingleton<IRepository<Artist>, ListRepository<Artist>>();
-//services.AddSingleton<IRepository<Movie>, ListRepository<Movie>>();
+services.AddSingleton<IRepository<Artist>, ListRepository<Artist>>();
+services.AddSingleton<IRepository<Movie>, ListRepository<Movie>>();
 services.AddSingleton<IDataProvider, DataGenerator>();
 services.AddSingleton<ICsvFile, CsvFile>();
 services.AddSingleton<IXmlFile, XmlFile>();
@@ -22,6 +22,6 @@ services.AddSingleton<IUserCommunication, UserCommunication>();
 services.AddSingleton<IMenu<Artist>, ArtistMenu>();
 services.AddSingleton<IMenu<Movie>, MovieMenu>();
 
-var serviceProvider =  services.BuildServiceProvider();
+var serviceProvider = services.BuildServiceProvider();
 var app = serviceProvider.GetService<IApp>()!;
 app.Run();

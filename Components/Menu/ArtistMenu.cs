@@ -1,4 +1,5 @@
 ﻿using FilmApp.Components.FileCreator;
+using FilmApp.Components.FileCreator.Models;
 using FilmApp.Components.Menu.Extensions;
 using FilmApp.Data.Entities;
 using FilmApp.Data.Repositories;
@@ -89,11 +90,11 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             var xmlFile = new XDocument(data);
             xmlFile.Save(@"Resources\Files\artists.xml");
 
-            Console.WriteLine("INFO : Data from database succesfully saved to artists.xml file!");
+            Console.WriteLine("INFO : Data succesfully saved to artists.xml file!");
         }
         else
         {
-            Console.WriteLine("INFO : Database is empty!");
+            Console.WriteLine("INFO : No data to save!");
         }
         MenuHelper.AddSeparator();
     }
@@ -109,7 +110,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             }
 
             var artists = _xmlFile.ReadArtistsXmlFile(pathName);
-            AddArtistsToDatabase(artists);
+            AddArtistsToRepository(artists);
         }
         catch (FileNotFoundException fe)
         {
@@ -129,9 +130,9 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         }
     }
 
-    private void AddArtistsToDatabase(List<FileCreator.Models.Artist> artists)
+    private void AddArtistsToRepository(List<ArtistInFile> artists)
     {
-        var isAddedNewArtistToDatabase = false;
+        var isAddedNewArtistToRepository = false;
         foreach (var artist in artists)
         {
             if (_repository.GetAll().Where(x => x.FirstName == artist.FirstName && x.LastName == artist.LastName).Any())
@@ -145,18 +146,18 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             });
 
             _repository.Save();
-            isAddedNewArtistToDatabase = true;
+            isAddedNewArtistToRepository = true;
             Console.WriteLine($"\t{artist.FirstName}, {artist.LastName}");
         }
 
-        if (isAddedNewArtistToDatabase)
+        if (isAddedNewArtistToRepository)
         {
             MenuHelper.AddSeparator();
-            Console.WriteLine("INFO : Data succesfully read and saved in database!");
+            Console.WriteLine("INFO : Data succesfully read and saved!");
         }
         else
         {
-            Console.WriteLine("INFO : No records to save in database!");
+            Console.WriteLine("INFO : No records to save!");
         }
     }
 
@@ -175,11 +176,11 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
                 }
             }
 
-            Console.WriteLine("INFO : Data from database succesfully saved to artists.csv file!");
+            Console.WriteLine("INFO : Data succesfully saved to artists.csv file!");
         }
         else
         {
-            Console.WriteLine("INFO : Database is empty!");
+            Console.WriteLine("INFO : No data to save!");
         }
         MenuHelper.AddSeparator();
     }
@@ -195,7 +196,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
             }
 
             var artists = _csvFile.ReadArtistsCsvFile(pathName);
-            AddArtistsToDatabase(artists);
+            AddArtistsToRepository(artists);
         }
         catch (FileNotFoundException fe)
         {
@@ -215,7 +216,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
     {
         try
         {
-            RemoveArtistFromDatabase();
+            RemoveArtistFromRepository();
         }
         catch (FormatException fe)
         {
@@ -233,7 +234,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         }
     }
 
-    private void RemoveArtistFromDatabase()
+    private void RemoveArtistFromRepository()
     {
         ReadAllItems();
         Console.Write("\tChoose one ID from list above: ");
@@ -248,14 +249,14 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         _repository.Save();
 
         MenuHelper.AddSeparator();
-        Console.WriteLine($"INFO : Artist '{artist.FirstName} {artist.LastName}' removed succesfully!\n\tChanges saved in database!");
+        Console.WriteLine($"INFO : Artist '{artist.FirstName} {artist.LastName}' removed succesfully!\n\tChanges saved!");
     }
 
     protected override void AddNewItem()
     {
         try
         {
-            AddNewArtistToDatabase();
+            AddNewArtistToRepository();
         }
         catch (ArgumentException ae)
         {
@@ -268,7 +269,7 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
         }
     }
 
-    private void AddNewArtistToDatabase()
+    private void AddNewArtistToRepository()
     {
         MenuHelper.AddSeparator();
         Console.WriteLine("Add new artist:");
@@ -282,13 +283,13 @@ public class ArtistMenu : Menu<Artist>, IMenu<Artist>
 
         if (_repository.GetAll().Where(x => x.FirstName == firstName && x.LastName == lastName).Any())
         {
-            throw new ArgumentException("ERROR : Artist exists in database! You can not add same artist!");
+            throw new ArgumentException("ERROR : Artist exists! You can not add same artist!");
         }
 
         _repository.Add(new Artist { FirstName = firstName, LastName = lastName });
         _repository.Save();
 
         MenuHelper.AddSeparator();
-        Console.WriteLine($"INFO : Artist '{firstName} {lastName}' added succesfully!\n\tChanges saved in database!");
+        Console.WriteLine($"INFO : Artist '{firstName} {lastName}' added succesfully!\n\tChanges saved!");
     }
 }

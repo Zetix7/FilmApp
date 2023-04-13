@@ -37,6 +37,11 @@ public abstract class Menu<T> : IMenu<T> where T : class, IEntity
     {
         try
         {
+            if (!_repository.GetAll().Any())
+            {
+                throw new IndexOutOfRangeException("INFO : No data to read!");
+            }
+
             MenuHelper.AddSeparator();
             Console.Write("\tChoose one ID: ");
             var choise = Console.ReadLine()!.Trim();
@@ -49,6 +54,11 @@ public abstract class Menu<T> : IMenu<T> where T : class, IEntity
             var item = _repository.GetById(id) ?? throw new ArgumentException($"ERROR : Invalid value! ID not exists! Try again!");
             MenuHelper.AddSeparator();
             Console.WriteLine($"{typeof(T).Name} : {item}");
+        }
+        catch (IndexOutOfRangeException ie)
+        {
+            MenuHelper.AddSeparator();
+            Console.WriteLine(ie.Message);
         }
         catch (FormatException fe)
         {
@@ -69,16 +79,16 @@ public abstract class Menu<T> : IMenu<T> where T : class, IEntity
     protected void ReadAllItems()
     {
         MenuHelper.AddSeparator();
-        if(!_repository.GetAll().Any())
+        if (!_repository.GetAll().Any())
         {
-            Console.WriteLine("INFO : Database is empty!");
+            Console.WriteLine("INFO : No data to read!");
         }
 
         foreach (var item in _repository.GetAll())
         {
             Console.WriteLine(item);
         }
-        
+
         MenuHelper.AddSeparator();
     }
 

@@ -13,7 +13,7 @@ public class ListRepository<T> : IRepository<T> where T : class, IEntity, new()
 
     public T? GetById(int id)
     {
-        return _repository.FirstOrDefault(x=>x.Id == id);
+        return _repository.FirstOrDefault(x => x.Id == id);
     }
 
     public void Add(T entity)
@@ -29,9 +29,5 @@ public class ListRepository<T> : IRepository<T> where T : class, IEntity, new()
 
     public void Save()
     {
-        foreach (T entity in GetAll())
-        {
-            Console.WriteLine(entity);
-        }
     }
 }

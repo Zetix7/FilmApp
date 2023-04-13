@@ -29,12 +29,12 @@ public class CsvFile : ICsvFile
         CsvFileHelper.SaveMoviesToCsvFile(writer, _dataProvider.GenerateSampleMovies());
     }
 
-    public List<Artist> ReadArtistsCsvFile(string pathName)
+    public List<ArtistInFile> ReadArtistsCsvFile(string pathName)
     {
         var artists = File.ReadAllLines(pathName).Where(x => x.Length > 1).Select(x =>
          {
              var columns = x.Split(',');
-             return new Artist
+             return new ArtistInFile
              {
                  FirstName = columns[0],
                  LastName = columns[1]
@@ -45,12 +45,12 @@ public class CsvFile : ICsvFile
     }
 
 
-    public List<Movie> ReadMoviesCsvFile(string pathName)
+    public List<MovieInFile> ReadMoviesCsvFile(string pathName)
     {
         var movies = File.ReadAllLines(pathName).Where(x => x.Length > 1).Select(x =>
         {
             var columns = x.Split(',');
-            return new Movie
+            return new MovieInFile
             {
                 Title = columns[0],
                 Year = int.Parse(columns[1], CultureInfo.InvariantCulture),

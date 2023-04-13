@@ -41,11 +41,11 @@ public class XmlFile : IXmlFile
         xmlFile.Save(@"Resources\Files\movies.xml");
     }
 
-    public List<Artist> ReadArtistsXmlFile(string pathName)
+    public List<ArtistInFile> ReadArtistsXmlFile(string pathName)
     {
         var records = XDocument.Load(pathName);
 
-        var artists = records.Element("Artists")!.Elements("Artist").Select(x => new Artist
+        var artists = records.Element("Artists")!.Elements("Artist").Select(x => new ArtistInFile
         {
             FirstName = x.Attribute("FirstName")!.Value,
             LastName = x.Attribute("LastName")!.Value
@@ -54,11 +54,11 @@ public class XmlFile : IXmlFile
         return artists;
     }
 
-    public List<Movie> ReadMoviesXmlFile(string pathName)
+    public List<MovieInFile> ReadMoviesXmlFile(string pathName)
     {
         var records = XDocument.Load(pathName);
 
-        return records.Element("Movies")!.Elements("Movie").Select(x => new Movie
+        return records.Element("Movies")!.Elements("Movie").Select(x => new MovieInFile
         {
             Title = x.Attribute("Title")!.Value,
             Year = int.Parse(x.Attribute("Year")!.Value, CultureInfo.InvariantCulture),

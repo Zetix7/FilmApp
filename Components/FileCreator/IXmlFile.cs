@@ -6,6 +6,6 @@ public interface IXmlFile
 {
     void CreateArtistsXmlFileFromCsvFile();
     void CreateMoviesXmlFileFromCsvFile();
-    List<Artist> ReadArtistsXmlFile(string pathName);
-    List<Movie> ReadMoviesXmlFile(string pathName);
+    List<ArtistInFile> ReadArtistsXmlFile(string pathName);
+    List<MovieInFile> ReadMoviesXmlFile(string pathName);
 }

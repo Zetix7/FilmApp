@@ -6,6 +6,6 @@ public interface ICsvFile
 {
     void CreateArtistsCsvFile();
     void CreateMoviesCsvFile();
-    List<Artist> ReadArtistsCsvFile(string pathName);
-    List<Movie> ReadMoviesCsvFile(string pathName);
+    List<ArtistInFile> ReadArtistsCsvFile(string pathName);
+    List<MovieInFile> ReadMoviesCsvFile(string pathName);
 }
